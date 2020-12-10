@@ -19,6 +19,11 @@ const UserSchema = new Schema({
         type: String,
         default: null,
     },
+    admin: {
+        email: String,
+        password: String,
+        resetLink: String,
+    },
     facebook: {
         uid: String,
         email: String,
@@ -52,5 +57,7 @@ const UserSchema = new Schema({
 });
 
 const UserModel = mongoose.model('user', UserSchema);
+
+
 
 module.exports = UserModel;
