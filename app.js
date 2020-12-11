@@ -12,6 +12,7 @@ const userRoute = require("./routes/user");
 const messageRoute = require('./routes/message');
 
 const ConversationModel = require("./models/conversation");
+const MessageModel = require("./models/messages");
 
 const app = express();
 const server = http.createServer(app);
@@ -38,49 +39,46 @@ app.use("/message", messageRoute);
 //chạy khi client kết nối lên server
 io.on("connection", (socket) => {
 
-  socket.emit("message-welcome", "Xin chào bạn, bạn cần hỗ trợ gì không?");
-
-  socket.on("join_room", idUser => {
-
+  // Join room nếu đã chat rồi.
+  socket.on('join_conversation', idUser => {
     ConversationModel.findOne({
       idUser
     }).then(conversation => {
-      if (!conversation) {
-        const conversation = new ConversationModel({
-          idUser,
-        });
+      if (!conversation) return;
 
-        conversation
-          .save()
-          .then(result => console.log('Tạo rồi nhé bạn hiền'))
-          .catch(err => {
-            console.log('Lỗi cmnr');
-          })
-      } else {
-        console.log('Có rồi mà tạo gì nữa cha');
-      }
+      socket.join(conversation._id);
     })
+  })
 
 
+  //tạo room và join room
+  socket.on("create_conversation", idUser => {
+    const conversation = new ConversationModel({
+      idUser
+    });
+    conversation
+      .save()
+      .then(data => {
+        socket.join(data._id);
+      });
   });
 
-  socket.on('chat', value => {
-    // ConversationModel.updateOne({
-    //   lastMessage: value
-    // })
-    // .then(console.log('Thành công'))
-    // .catch(console.log('Thất bại'))
+  //chat
+  socket.on('chat', data => {
+
+    const { _id, sender, message, idConversation } = data.data;
+    socket.join(idConversation);
+    
+    const payload = {
+      idConversation,
+      sender,
+      message,
+      _id
+    }
+
+    io.to(idConversation).emit('message_server_return', payload)
   })
 
-  socket.on('join', idUser => {
-    ConversationModel.findOne({
-      idUser
-    }).then(room => {
-      if (room) {
-        return socket.join(room._id);
-      }
-    })
-  })
 
 
   socket.on("disconnect", () => {

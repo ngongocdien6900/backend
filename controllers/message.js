@@ -2,15 +2,12 @@ const MessageModel = require("../models/messages");
 const ConversationModel = require("../models/conversation");
 module.exports = {
 
-
-
     getMessageByConversation: (req, res) => {
-
         ConversationModel.findOne({
             idUser: req.query.idUser,
         }).then(user => {
             if (!user) {
-                console.log('User chưa chat lần nào cả');
+                console.log('Hi, hihihi');  
             } else {
                 MessageModel.find({
                     idConversation: user._id
@@ -29,8 +26,29 @@ module.exports = {
                 })
             }
         })
+    },
 
+    postSaveMessage: (req, res) => {
+        const { idConversation, sender, message } = req.body;
 
+        const messagee = new MessageModel({
+            sender,
+            message,
+            idConversation
+        })
+
+        messagee
+        .save()
+        .then(result => {
+            res.status(201).json({
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+            error: err,
+            });
+        });
     }
 
 };

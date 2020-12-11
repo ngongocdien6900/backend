@@ -8,16 +8,10 @@ const UserSchema = new Schema({
     },
     gender: {
         type: String,
-        require: true,
-    },
-    phone: {
-        type: String,
-        default: null,
     },
     avatar: {
         //đường dẫn avatar
         type: String,
-        default: null,
     },
     admin: {
         email: String,
@@ -46,7 +40,6 @@ const UserSchema = new Schema({
     },
     password: {
         type: String,
-        default: null
     },
     resetLink: {
         data: String,
