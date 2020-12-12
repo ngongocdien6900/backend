@@ -5,7 +5,11 @@ module.exports = {
     getMessageByConversation: (req, res) => {
 
         ConversationModel.findOne({
-            idUser: req.query.idUser,
+            // idUser: req.query.idUser,
+            $or: [
+                {idUser: req.query.idUser},
+                {_id: req.query.idConversation}
+            ]
         }).then(user => {
             console.log(user);
             if (!user) {

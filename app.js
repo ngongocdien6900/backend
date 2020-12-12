@@ -52,11 +52,16 @@ io.on("connection", (socket) => {
     })
   })
 
+  socket.on('admin_join_conversation', idConversation => {
+    socket.join(idConversation);
+  })
 
   //tạo room và join room
-  socket.on("create_conversation", idUser => {
+  socket.on("create_conversation", currentUser => {
+    
     const conversation = new ConversationModel({
-      idUser
+      idUser: currentUser._id,
+      nameConversation: currentUser.fullname,
     });
     conversation
       .save()
@@ -76,6 +81,8 @@ io.on("connection", (socket) => {
 
     io.to(idConversation).emit('message_server_return', payload)
   })
+
+
 
   socket.on("disconnect", () => {
     io.emit("user-leave", "Bạn ấy đã rời cuộc trò truyện");

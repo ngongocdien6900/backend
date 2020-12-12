@@ -3,6 +3,8 @@ const mongoose = require('../config/connectDB');
 const Schema = mongoose.Schema;
 const ConversationSchema = new Schema({
     idUser: String,
+    nameConversation: String,
+    lastMessage: String,
 }, {
     collection: 'conversation'
 });
