@@ -10,6 +10,7 @@ require("dotenv").config();
 //require route
 const userRoute = require("./routes/user");
 const messageRoute = require('./routes/message');
+const adminRoute = require('./routes/admin');
 
 const ConversationModel = require("./models/conversation");
 const MessageModel = require("./models/messages");
@@ -35,6 +36,7 @@ app.use(morgan("tiny"));
 //use route
 app.use("/", userRoute);
 app.use("/message", messageRoute);
+app.use("/admin", adminRoute);
 
 //chạy khi client kết nối lên server
 io.on("connection", (socket) => {
@@ -60,6 +62,7 @@ io.on("connection", (socket) => {
       .save()
       .then(data => {
         socket.join(data._id);
+        socket.emit('responseRoom', data._id);
       });
   });
 
@@ -69,21 +72,15 @@ io.on("connection", (socket) => {
     const { _id, sender, message, idConversation } = data.data;
     socket.join(idConversation);
     
-    const payload = {
-      idConversation,
-      sender,
-      message,
-      _id
-    }
+    const payload = { idConversation, sender, message, _id }
 
     io.to(idConversation).emit('message_server_return', payload)
   })
 
-
-
   socket.on("disconnect", () => {
     io.emit("user-leave", "Bạn ấy đã rời cuộc trò truyện");
   });
+
 });
 
 server.listen(PORT, () => {
