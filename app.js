@@ -48,7 +48,9 @@ io.on("connection", (socket) => {
     }).then(conversation => {
       if (!conversation) return;
 
-      socket.join(conversation._id);
+      const idConversation = String(conversation._id);
+      socket.join(idConversation);
+      console.log('Join default: ', socket.rooms);
     })
   })
 
@@ -67,22 +69,16 @@ io.on("connection", (socket) => {
       .save()
       .then(data => {
         socket.join(data._id);
-        socket.emit('responseRoom', data._id);
+        socket.emit('response_room', data);
       });
   });
 
   //chat
   socket.on('chat', data => {
-
     const { _id, sender, message, idConversation } = data.data;
-    socket.join(idConversation);
-    
     const payload = { idConversation, sender, message, _id }
-
-    io.to(idConversation).emit('message_server_return', payload)
+    io.to(idConversation).emit('new_message', payload)
   })
-
-
 
   socket.on("disconnect", () => {
     io.emit("user-leave", "Bạn ấy đã rời cuộc trò truyện");
