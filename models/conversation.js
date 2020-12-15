@@ -5,6 +5,10 @@ const ConversationSchema = new Schema({
     idUser: String,
     nameConversation: String,
     lastMessage: String,
+    createAt: {
+        type: Number,
+        default: Date.now
+    },
 }, {
     collection: 'conversation'
 });
