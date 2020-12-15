@@ -13,7 +13,11 @@ const MessageSchema = new Schema({
     },
     message: {
         type: String,
-    }
+    },
+    createAt: {
+        type: Number,
+        default: Date.now
+    },
 }, {
     collection: 'message'
 });

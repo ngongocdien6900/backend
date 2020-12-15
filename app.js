@@ -50,7 +50,6 @@ io.on("connection", (socket) => {
 
       const idConversation = String(conversation._id);
       socket.join(idConversation);
-      console.log('Join default: ', socket.rooms);
     })
   })
 
@@ -60,7 +59,7 @@ io.on("connection", (socket) => {
 
   //tạo room và join room
   socket.on("create_conversation", currentUser => {
-    
+
     const conversation = new ConversationModel({
       idUser: currentUser._id,
       nameConversation: currentUser.fullname,
@@ -68,16 +67,34 @@ io.on("connection", (socket) => {
     conversation
       .save()
       .then(data => {
-        socket.join(data._id);
+        socket.join(String(data._id));
         socket.emit('response_room', data);
       });
   });
 
   //chat
-  socket.on('chat', data => {
-    const { _id, sender, message, idConversation } = data.data;
-    const payload = { idConversation, sender, message, _id }
-    io.to(idConversation).emit('new_message', payload)
+  socket.on('chat', async data => {
+    const {
+      _id,
+      sender,
+      message,
+      idConversation
+    } = data.data;
+
+    const conversation = await ConversationModel.findByIdAndUpdate({
+      _id: idConversation
+    }, {
+      lastMessage: message
+    }, {new: true})
+    io.emit('lastMessage', conversation);
+    const payload = {
+      idConversation,
+      sender,
+      message,
+      _id
+    };
+    io.to(idConversation).emit('new_message', payload);
+
   })
 
   socket.on("disconnect", () => {
