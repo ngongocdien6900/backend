@@ -8,7 +8,6 @@ const mailgun = require("mailgun-js");
 const DOMAIN = "sandbox490f2be9152e452ebbe8c3e32c9daff6.mailgun.org";
 const mg = mailgun({ apiKey: process.env.MAILGUN_APIKEY, domain: DOMAIN });
 
-
 module.exports = {
   postLogin: (req, res) => {
     const { email, password } = req.body;
@@ -63,17 +62,16 @@ module.exports = {
     })
       .exec()
       .then((admin) => {
-        if (admin) {
+        if (admin) 
           return res.status(409).json({
             message: "Email đã tồn tại",
           });
-        } else {
           bcrypt.hash(password, 10, (err, hash) => {
-            if (err) {
+            if (err) 
               return res.status(500).json({
                 error: err,
               });
-            } else {
+            else {
               const admin = new UserModel({
                 "admin.email": email,
                 fullname,
@@ -92,15 +90,13 @@ module.exports = {
                     error: err,
                   });
                 });
-            }
+              }
           });
-        }
       });
   },
 
   postForgotPassword: (req, res) => {
     const { email } = req.body;
-
     UserModel.findOne({
       "admin.email": email,
     })
@@ -171,28 +167,25 @@ module.exports = {
               }
 
               bcrypt.hash(newPassword, 10, (err, hash) => {
-                if (err) {
+                if (err) 
                   return res.status(500).json({
                     message: err,
-                  });
-                } else {
-                  UserModel.updateOne(
-                    {
-                      "admin.password": hash,
-                      "admin.resetLink": "",
-                    },
-                    (error, data) => {
-                      if (error)
-                        return res.status(400).json({
-                          message: "Đổi password thất bại",
-                        });
-                      else
-                        return res.status(200).json({
-                          message: "Bạn đã thay đổi password thành công",
-                        });
-                    }
-                  );
-                }
+                  }); 
+                UserModel.updateOne(
+                  {
+                    "admin.password": hash,
+                    "admin.resetLink": "",
+                  },
+                  (error, data) => {
+                    if (error)
+                      return res.status(400).json({
+                        message: "Đổi password thất bại",
+                      });
+                    return res.status(200).json({
+                      message: "Bạn đã thay đổi password thành công",
+                    });
+                  }
+                );
               });
             });
         }
@@ -205,12 +198,14 @@ module.exports = {
   },
 
   getAllConversation: (req, res) => {
-
-    ConversationModel.find({})
+    ConversationModel.find({}).sort({createAt: -1})
     .then(data => {
         res.status(200).json({
             conversations: data,
         })
     });
-  }
+  },
+  
 };
+
+

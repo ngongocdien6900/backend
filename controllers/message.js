@@ -10,25 +10,22 @@ module.exports = {
                 {_id: req.query.idConversation}
             ]
         }).then(user => {
-            if (!user) {
-                console.log('Hi, hihihi');
-            } else {
-                MessageModel.find({
-                        idConversation: user._id
+            if (!user) return;
+
+            MessageModel.find({
+                    idConversation: user._id
+            })
+            .populate('idConversation')
+            .exec((err, messages) => {
+                if (!messages) 
+                    return res.status(400).json({
+                        message: 'Thất bại'
                     })
-                    .populate('idConversation')
-                    .exec((err, messages) => {
-                        if (!messages) {
-                            return res.status(400).json({
-                                message: 'Thất bại'
-                            })
-                        } else {
-                            return res.status(200).json({
-                                messageList: messages
-                            })
-                        }
-                    })
-            }
+                return res.status(200).json({
+                    messageList: messages
+                })
+                
+            })
         })
     },
 

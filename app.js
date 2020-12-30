@@ -13,7 +13,6 @@ const messageRoute = require('./routes/message');
 const adminRoute = require('./routes/admin');
 
 const ConversationModel = require("./models/conversation");
-const MessageModel = require("./models/messages");
 
 const app = express();
 const server = http.createServer(app);
@@ -97,7 +96,6 @@ io.on("connection", (socket) => {
     io.to(idConversation).emit('new_message', payload);
 
     const conver = await ConversationModel.findOne({_id: idConversation})
-    console.log('Tìm ra nó rồi nè cha', conver);
     io.emit('show_me', conver);
 
   })

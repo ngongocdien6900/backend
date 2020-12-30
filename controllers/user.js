@@ -1,18 +1,10 @@
 const UserModel = require("../models/user");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-
-//sendmail
-const mailgun = require("mailgun-js");
-const DOMAIN = "sandbox490f2be9152e452ebbe8c3e32c9daff6.mailgun.org";
-const mg = mailgun({ apiKey: process.env.MAILGUN_APIKEY, domain: DOMAIN });
 
 //for email
 const { OAuth2Client } = require("google-auth-library");
 //clientID
-const client = new OAuth2Client(
-  "558364175234-514g61eos4bo97uj5mp2vsum8j22dupr.apps.googleusercontent.com"
-);
+const client = new OAuth2Client(process.env.CLIENT_ID);
 
 //facebook
 const fetch = require("node-fetch");
@@ -24,8 +16,7 @@ module.exports = {
     client
       .verifyIdToken({
         idToken: tokenId,
-        audience:
-          "558364175234-514g61eos4bo97uj5mp2vsum8j22dupr.apps.googleusercontent.com",
+        audience: process.env.CLIENT_ID,
       })
       .then((data) => {
         const { email, name, imageUrl, sub } = data.payload;
@@ -51,9 +42,8 @@ module.exports = {
                   token,
                   user: user,
                 });
-
-                //nếu chưa đăng ký thì tạo mới
-              } else {
+              } //nếu chưa đăng ký thì tạo mới
+              else {
                 const user = new UserModel({
                   fullname: name,
                   "google.email": email,
@@ -61,29 +51,29 @@ module.exports = {
                   avatar: imageUrl,
                 });
                 user
-                  .save()
-                  .then((result) => {
-                    const token = jwt.sign(
-                      {
-                        _id: result._id,
-                      },
-                      "secret",
-                      {
-                        expiresIn: "7d",
-                      }
-                    );
-                    return res.status(200).json({
-                      token,
-                      user: result,
-                    });
-                  })
-                  .catch((err) => {
-                    res.status(500).json({
-                      error: err,
-                    });
+                .save()
+                .then((result) => {
+                  const token = jwt.sign(
+                    {
+                      _id: result._id,
+                    },
+                    process.env.JWT,
+                    {
+                      expiresIn: "7d",
+                    }
+                  );
+                  return res.status(200).json({
+                    token,
+                    user: result,
                   });
+                })
+                .catch((err) => {
+                  res.status(500).json({
+                    error: err,
+                  });
+                });
               }
-            });
+            }); 
         }
       });
   },
@@ -120,9 +110,8 @@ module.exports = {
                   token,
                   user: user,
                 });
-
-                //nếu chưa đăng ký thì tạo mới
-              } else {
+              } //nếu chưa đăng ký thì tạo mới
+              else {
                 const user = new UserModel({
                   fullname: name,
                   "facebook.email": email,
@@ -135,7 +124,7 @@ module.exports = {
                       {
                         _id: result._id,
                       },
-                      "secret",
+                      process.env.JWT,
                       {
                         expiresIn: "7d",
                       }
@@ -150,7 +139,7 @@ module.exports = {
                       error: err,
                     });
                   });
-              }
+                }
             });
         }
       });
